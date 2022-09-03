@@ -1,0 +1,6 @@
+{
+    "badges.loading": "Загрузка...",
+    "page.main.title": "Импортер расписания в календарь",
+    "page.main.subtitle": "Выберите расписание, которое хотите импортировать",
+    "page.main.description": "Вы получите ссылку формата *.iacl, который можно добавить в любой календарь, например, в Google Calendar, Apple Calendar, Outlook, iCal и т.д."
+}
