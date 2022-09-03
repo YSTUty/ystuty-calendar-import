@@ -1,7 +1,16 @@
 {
   "name": "ystuty-calendar-import",
   "version": "0.1.0",
+  "author": "xTCry [Vladislav Kh] (https://github.com/xTCry/)",
   "private": true,
+  "license": "MIT",
+  "repository": {
+    "url": "https://github.com/YSTUty/ystuty-calendar-import.git",
+    "type": "git"
+  },
+  "bugs": {
+    "url": "https://github.com/YSTUty/ystuty-calendar-import/issues"
+  },
   "dependencies": {
     "@appigram/react-yandex-metrika": "^2.8.1",
     "@emotion/react": "^11.10.4",
