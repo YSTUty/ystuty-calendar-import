@@ -2,5 +2,13 @@
     "badges.loading": "Загрузка...",
     "page.main.title": "Импортер расписания в календарь",
     "page.main.subtitle": "Выберите расписание, которое хотите импортировать",
-    "page.main.description": "Вы получите ссылку формата *.iacl, который можно добавить в любой календарь, например, в Google Calendar, Apple Calendar, Outlook, iCal и т.д."
+    "page.main.description": "Вы получите ссылку формата *.ical, которую можно добавить в любой календарь для импорта, например, в Google Calendar, Apple Calendar, Outlook, iCal и т.д.",
+    "page.main.group.apple-info": "Импорт в Apple Calendar глючит с русскими символами, поэтому лучше использовать Google Calendar. Но если вы хотите импортировать в Apple Calendar, то вам нужно сначала импортировать в Google Calendar, а потом синхронизировать с Apple Calendar. Или же вы можете скачать расписание в формате *.ical и импортировать в Apple Calendar вручную.",
+    "page.main.sync-info": "Синхронизация в календарях происходит раз в 24 часа. Если вы хотите обновить расписание в календаре, то просто удалите его и импортируйте заново.",
+    "text.group.param": "Группа: {group}",
+    "text.group": "Группа",
+    "text.groups": "Группы",
+    "text.teacher.param": "Преподаватель: {teacher}",
+    "text.teacher": "Преподаватель",
+    "text.teachers": "Преподаватели"
 }

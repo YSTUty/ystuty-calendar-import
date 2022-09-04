@@ -15,7 +15,7 @@ import * as envUtils from '../utils/env.utils';
 
 const Copyright = () => {
     return (
-        <Typography variant="body2" color="text.secondary" align="center">
+        <Typography variant="body2" color="text.secondary" align="center" sx={{ pt: 3 }}>
             {'Copyright © '}
             2018-{new Date().getFullYear()}{' '}
             {envUtils.linkYSTUty ? (
@@ -31,6 +31,7 @@ const Copyright = () => {
                     <GitHubIcon fontSize="small" />
                 </Link>
             )}
+            <br />
             <VersionComponent />
         </Typography>
     );
@@ -57,7 +58,7 @@ const App = () => {
                     </FormControl>
                 </Toolbar>
             </AppBar>
-            <Container component="main" maxWidth="sm" sx={{ mb: 4 }}>
+            <Container component="main" maxWidth="md" sx={{ mb: 4 }}>
                 <Routes>
                     <Route path="/" element={<MainPageContainer />} />
                     {/* <Route path="about" element={<About />} /> */}
