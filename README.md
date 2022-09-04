@@ -1,3 +1,21 @@
+<p align="center"><img src="https://ystuty.github.io/docs/assets/img/YSTUty_logo-text-without-bg-shadow.png" width="150"></p>
+
+<p align="center">
+  <img src="https://img.shields.io/github/package-json/v/YSTUty/ystuty-calendar-import?style=flat-square" alt="GitHub package.json version"/>
+  <img src="https://img.shields.io/github/last-commit/YSTUty/ystuty-calendar-import?style=flat-square" alt="GitHub last commit"/>
+  <img src="https://img.shields.io/badge/dynamic/json?color=ced&style=flat-square&logo=GraphQL&label=Доступно&suffix= групп&query=$.groups&url=https://parser.ystu.site/api/ystu/schedule/count" alt="Number of available groups"/>
+  <img src="https://img.shields.io/badge/dynamic/json?color=ced&style=flat-square&logo=GraphQL&label=Доступно&suffix= преподавателей&query=$.teachers&url=https://parser.ystu.site/api/ystu/schedule/count" alt="Number of available teachers"/>
+  <br/>
+  <a href="https://view.ystuty.ru"><img src="https://img.shields.io/badge/Viwe%20schedule-YSTUty-9cf?style=flat-square&logo=Internet%20Explorer" alt="Viwe schedule"/></a>
+  <a href="https://ics.ystuty.ru"><img src="https://img.shields.io/badge/Import%20Calendar%20Schedule-YSTUty-9cf?style=flat-square&logo=Google Calendar" alt="Import Calendar Schedule"/></a>
+  <a href="https://vk.com/ss_ystu"><img src="https://img.shields.io/badge/Bot-Use now-9cf?style=flat-square&logo=vk" alt="Use VK bot now"/></a>
+  <a href="https://t.me/ss_ystu_bot"><img src="https://img.shields.io/badge/Bot-Use now-229ED9?style=flat-square&logo=telegram" alt="Use Telegram bot now"/></a>
+</p>
+
+# [YSTUty] Calendar Import *(Importer Calendar Schedule)*
+> Решение, использующее данные из сервиса [YSTUty-Parser](https://github.com/YSTUty/ystuty-parser), генерирующее ссылку для импорта расписания в календарь Google, Apple Calendar, Outlook и другие.
+
+---
 # Getting Started with Create React App
 
 This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
