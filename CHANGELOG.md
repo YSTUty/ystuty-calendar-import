@@ -2,6 +2,18 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [0.1.2](https://github.com/YSTUty/ystuty-calendar-import/compare/v0.1.1...v0.1.2) (2022-09-04)
+
+
+### 🚀 Features
+
+* added link to schedule viewer in header ([807c429](https://github.com/YSTUty/ystuty-calendar-import/commit/807c429ff88700185161a7d631addc99687a0b5a))
+
+
+### 🧹 Chore
+
+* updated index.html description ([ab05baf](https://github.com/YSTUty/ystuty-calendar-import/commit/ab05bafe539a45fdeb7e9febb9bf3465ca82ffee))
+
 ### 0.1.1 (2022-09-04)
 
 
