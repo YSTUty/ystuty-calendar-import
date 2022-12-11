@@ -2,6 +2,18 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [0.1.3](https://github.com/YSTUty/ystuty-calendar-import/compare/v0.1.2...v0.1.3) (2022-12-11)
+
+
+### 🐛 Bug Fixes
+
+* **components:** fixed twice schedule api requests ([3b9b3fe](https://github.com/YSTUty/ystuty-calendar-import/commit/3b9b3fec83e5545382e9f6446085158e6ec63362))
+
+
+### 🚀 Features
+
+* **app:** added `vk like` widget ([ad4dde0](https://github.com/YSTUty/ystuty-calendar-import/commit/ad4dde07c0c7009c6cf1c566e4fca239d93deb2a))
+
 ### [0.1.2](https://github.com/YSTUty/ystuty-calendar-import/compare/v0.1.1...v0.1.2) (2022-09-04)
 
 
