@@ -186,7 +186,7 @@ const TeacherSelect = (props: { allowMultipleTeachersRef?: React.MutableRefObjec
     }, [defaultValues]);
 
     React.useEffect(() => {
-        if (online && (online !== previousOnline || (since && Date.now() - since.getTime() > 2 * 60e3))) {
+        if (previousOnline && (online !== previousOnline || (since && Date.now() - since.getTime() > 2 * 60e3))) {
             loadTeachersList();
         }
     }, [online, previousOnline, since]);

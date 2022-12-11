@@ -185,7 +185,7 @@ const GroupSelect = (props: { allowMultipleGroupsRef?: React.MutableRefObject<(s
     }, [defaultValues]);
 
     React.useEffect(() => {
-        if (online && (online !== previousOnline || (since && Date.now() - since.getTime() > 2 * 60e3))) {
+        if (previousOnline && (online !== previousOnline || (since && Date.now() - since.getTime() > 2 * 60e3))) {
             loadGroupsList();
         }
     }, [online, previousOnline, since]);
