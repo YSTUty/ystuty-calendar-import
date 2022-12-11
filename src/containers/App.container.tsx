@@ -1,5 +1,7 @@
 import { Route, Routes } from 'react-router-dom';
 
+import VK, { Like } from '../components/VK';
+
 import AppBar from '@mui/material/AppBar';
 import Container from '@mui/material/Container';
 import Toolbar from '@mui/material/Toolbar';
@@ -7,6 +9,8 @@ import Link from '@mui/material/Link';
 import IconButton from '@mui/material/IconButton';
 import Typography from '@mui/material/Typography';
 import FormControl from '@mui/material/FormControl';
+import Divider from '@mui/material/Divider';
+
 import GitHubIcon from '@mui/icons-material/GitHub';
 import EventNoteIcon from '@mui/icons-material/EventNote';
 
@@ -14,8 +18,6 @@ import { ThemeModeButton } from '../providers/ThemeMode.provider';
 import MainPageContainer from './MainPage.container';
 import VersionComponent from '../components/Version.component';
 import * as envUtils from '../utils/env.utils';
-import Button from '@mui/material/Button';
-import Divider from '@mui/material/Divider';
 
 const Copyright = () => {
     return (
@@ -54,9 +56,27 @@ const App = () => {
                 }}
             >
                 <Toolbar>
-                    <Typography variant="h6" color="inherit" noWrap>
+                    <Typography variant="h6" color="inherit" noWrap sx={{ mr: 2 }}>
                         [YSTUty] <b>I</b>mport <b>C</b>alendar <b>S</b>chedule
                     </Typography>
+                    {envUtils.vkWidgetsApiId && (
+                        <>
+                            <Divider orientation="vertical" flexItem />
+                            <FormControl sx={{ ml: 2 }}>
+                                <VK apiId={envUtils.vkWidgetsApiId} options={{ version: 168, onlyWidgets: true }}>
+                                    <Like
+                                        elementId="vk_like"
+                                        options={{ type: 'mini', height: 24, width: 1000, verb: 0 }}
+                                        pageId={'ics'}
+                                        onLike={(num) => {}}
+                                        onUnlike={(num) => {}}
+                                        onShare={(num) => {}}
+                                        onUnshare={(num) => {}}
+                                    />
+                                </VK>
+                            </FormControl>
+                        </>
+                    )}
                     <Typography sx={{ flex: 1 }}></Typography>
                     <Divider orientation="vertical" flexItem />
                     <FormControl>
