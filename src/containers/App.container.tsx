@@ -1,7 +1,5 @@
 import { Route, Routes } from 'react-router-dom';
 
-import VK, { Like } from '../components/VK';
-
 import AppBar from '@mui/material/AppBar';
 import Container from '@mui/material/Container';
 import Toolbar from '@mui/material/Toolbar';
@@ -11,56 +9,14 @@ import Typography from '@mui/material/Typography';
 import FormControl from '@mui/material/FormControl';
 import Divider from '@mui/material/Divider';
 
-import GitHubIcon from '@mui/icons-material/GitHub';
-import TelegramIcon from '@mui/icons-material/Telegram';
-import SupportAgentIcon from '@mui/icons-material/SupportAgentSharp';
 import EventNoteIcon from '@mui/icons-material/EventNote';
+
+import VK, { Like } from '../components/VK';
+import Copyright from '../components/Copyright.component';
 
 import { ThemeModeButton } from '../providers/ThemeMode.provider';
 import MainPageContainer from './MainPage.container';
-import VersionComponent from '../components/Version.component';
 import * as envUtils from '../utils/env.utils';
-
-const Copyright = () => {
-    return (
-        <Typography variant="body2" color="text.secondary" align="center" sx={{ pt: 3 }}>
-            {'Copyright © '}
-            2018-{new Date().getFullYear()}{' '}
-            {envUtils.linkYSTUty ? (
-                <Link href={envUtils.linkYSTUty} color="inherit">
-                    YSTUty
-                </Link>
-            ) : (
-                'YSTUty'
-            )}
-            {'.'}
-            {envUtils.linkToGitHub && (
-                <Link href={envUtils.linkToGitHub} target="_blank" color="inherit" sx={{ ml: 1 }}>
-                    <GitHubIcon fontSize="small" />
-                </Link>
-            )}
-            {envUtils.linkToGitHub && envUtils.telegramUsername && ' '}
-            {envUtils.telegramUsername && (
-                <Link href={`https://t.me/${envUtils.telegramUsername}`} target="_blank" color="inherit" sx={{ ml: 1 }}>
-                    <TelegramIcon fontSize="small" />
-                </Link>
-            )}
-            {envUtils.linkToSupport && (
-                <Link
-                    href={envUtils.linkToSupport}
-                    target="_blank"
-                    sx={{ ml: 1 }}
-                    color="inherit"
-                    title="Поддержка/Задать вопрос/Что-нибудь предложить"
-                >
-                    <SupportAgentIcon />
-                </Link>
-            )}
-            <br />
-            <VersionComponent />
-        </Typography>
-    );
-};
 
 const App = () => {
     return (
