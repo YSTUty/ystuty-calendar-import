@@ -55,7 +55,7 @@ const linksToServices = [
 
 const MainPage = () => {
     const { selectedGroups, selectedTeachers } = useSelector<RootState, RootState['schedule']>(
-        (state) => state.schedule
+        (state) => state.schedule,
     );
     const teachers = getTeachers();
 

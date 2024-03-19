@@ -64,7 +64,7 @@ const GroupSelect = (props: { allowMultipleGroupsRef?: React.MutableRefObject<(s
             // items.sort();
             setInstitutes(items);
         },
-        [setInstitutes, setIsCached]
+        [setInstitutes, setIsCached],
     );
 
     const loadGroupsList = React.useCallback(() => {
@@ -80,7 +80,7 @@ const GroupSelect = (props: { allowMultipleGroupsRef?: React.MutableRefObject<(s
                 (
                     response:
                         | { items: { name: string; groups: string[] }[] }
-                        | { error: { error: string; message: string } }
+                        | { error: { error: string; message: string } },
                 ) => {
                     if ('error' in response) {
                         alert(response.error.message);
@@ -95,7 +95,7 @@ const GroupSelect = (props: { allowMultipleGroupsRef?: React.MutableRefObject<(s
                         return;
                     }
                     applyInstitutes(response!.items);
-                }
+                },
             )
             .catch((e) => {
                 applyInstitutes(null);
@@ -131,7 +131,7 @@ const GroupSelect = (props: { allowMultipleGroupsRef?: React.MutableRefObject<(s
                 }
             }
         },
-        [dispatch, setHash, selected]
+        [dispatch, setHash, selected],
     );
 
     const fixSelected = React.useCallback(
@@ -151,7 +151,7 @@ const GroupSelect = (props: { allowMultipleGroupsRef?: React.MutableRefObject<(s
                 onChangeValues(value);
             }
         },
-        [institutes, selected, onChangeValues]
+        [institutes, selected, onChangeValues],
     );
 
     const allowMultiple = React.useCallback(
@@ -164,7 +164,7 @@ const GroupSelect = (props: { allowMultipleGroupsRef?: React.MutableRefObject<(s
                 onChangeValues(selected);
             }
         },
-        [onChangeValues, selected]
+        [onChangeValues, selected],
     );
 
     // Check correct names after institutes loading
@@ -206,9 +206,9 @@ const GroupSelect = (props: { allowMultipleGroupsRef?: React.MutableRefObject<(s
         () =>
             institutes.reduce(
                 (prev, cur) => ({ ...prev, ...Object.fromEntries(cur.groups.map((g) => [g, cur.name])) }),
-                {} as Record<string, string>
+                {} as Record<string, string>,
             ),
-        [institutes]
+        [institutes],
     );
 
     return (
@@ -226,7 +226,7 @@ const GroupSelect = (props: { allowMultipleGroupsRef?: React.MutableRefObject<(s
                     {...params}
                     label={formatMessage({ id: `text.group${isMultiple ? 's' : ''}` })}
                     placeholder={((e) => (e.length > 0 && e[Math.floor(Math.random() * e.length)]) || '...')(
-                        Object.keys(options)
+                        Object.keys(options),
                     )}
                 />
             )}

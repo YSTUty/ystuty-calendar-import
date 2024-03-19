@@ -74,7 +74,7 @@ const TeacherSelect = (props: { allowMultipleTeachersRef?: React.MutableRefObjec
             // items.sort();
             setTeachers(items);
         },
-        [setTeachers, setIsCached]
+        [setTeachers, setIsCached],
     );
 
     const loadTeachersList = React.useCallback(() => {
@@ -88,7 +88,7 @@ const TeacherSelect = (props: { allowMultipleTeachersRef?: React.MutableRefObjec
             .then((response) => response.json())
             .then(
                 (
-                    response: { items: { name: string; id: number }[] } | { error: { error: string; message: string } }
+                    response: { items: { name: string; id: number }[] } | { error: { error: string; message: string } },
                 ) => {
                     if ('error' in response) {
                         alert(response.error.message);
@@ -102,7 +102,7 @@ const TeacherSelect = (props: { allowMultipleTeachersRef?: React.MutableRefObjec
                         return;
                     }
                     applyTeachers(response!.items);
-                }
+                },
             )
             .catch((e) => {
                 applyTeachers(null);
@@ -137,7 +137,7 @@ const TeacherSelect = (props: { allowMultipleTeachersRef?: React.MutableRefObjec
                 }
             }
         },
-        [dispatch, setHash, selected]
+        [dispatch, setHash, selected],
     );
 
     const fixSelected = React.useCallback(
@@ -152,7 +152,7 @@ const TeacherSelect = (props: { allowMultipleTeachersRef?: React.MutableRefObjec
                 onChangeValues(value);
             }
         },
-        [teachers, selected, onChangeValues]
+        [teachers, selected, onChangeValues],
     );
 
     const allowMultiple = React.useCallback(
@@ -165,7 +165,7 @@ const TeacherSelect = (props: { allowMultipleTeachersRef?: React.MutableRefObjec
                 onChangeValues(selected);
             }
         },
-        [onChangeValues, selected]
+        [onChangeValues, selected],
     );
 
     // Check correct names after teachers loading
@@ -217,7 +217,7 @@ const TeacherSelect = (props: { allowMultipleTeachersRef?: React.MutableRefObjec
                     {...params}
                     label={formatMessage({ id: `text.teacher${isMultiple ? 's' : ''}` })}
                     placeholder={((e) => (e.length > 0 && e[Math.floor(Math.random() * e.length)].name) || '...')(
-                        teachers
+                        teachers,
                     )}
                 />
             )}

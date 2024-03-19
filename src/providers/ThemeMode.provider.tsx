@@ -43,7 +43,7 @@ export const ThemeModeProvider = (props: { children: any }) => {
                 });
             },
         }),
-        [prefersDarkMode]
+        [prefersDarkMode],
     );
 
     React.useEffect(() => {
