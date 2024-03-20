@@ -1,4 +1,5 @@
 export const apiPath = process.env.REACT_APP_API_URL || `//${window.location.host}/api`;
+export const icalUrl = process.env.REACT_APP_ICAL_URL!;
 export const appHost = process.env.REACT_APP_MAIN_HOST!;
 
 export const linkYSTUty = process.env.REACT_APP_LINK_YSTUTY;

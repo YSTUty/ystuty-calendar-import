@@ -14,7 +14,7 @@ import AppleIcon from '@mui/icons-material/Apple';
 import InsertInvitationIcon from '@mui/icons-material/InsertInvitation';
 import DateRangeIcon from '@mui/icons-material/DateRange';
 
-import GroupSelectComponent from '../components/GroupSelect.component';
+import { SelectGroupComponent } from '../components/GroupSelect.component';
 import TeacherSelectComponent, { getTeachers } from '../components/TeacherSelect.component';
 import HtmlTooltip from '../components/HtmlTooltip.component';
 
@@ -80,7 +80,7 @@ const MainPage = () => {
                                         e.img ? (
                                             <>
                                                 <Typography color="inherit">Example</Typography>
-                                                <img src={e.img} width={800} />
+                                                <img src={e.img} width={800} alt="Example" />
                                             </>
                                         ) : (
                                             false
@@ -112,7 +112,7 @@ const MainPage = () => {
                     </Typography>
                     <Grid container spacing={2} sx={{ mt: 2 }}>
                         <Grid item xs={12} md={12}>
-                            <GroupSelectComponent /* allowMultipleGroupsRef={allowMultipleGroupsRef} */ />
+                            <SelectGroupComponent /* allowMultipleRef={allowMultipleGroupsRef} */ />
                         </Grid>
 
                         {selectedGroups.map((group) => (
@@ -123,9 +123,9 @@ const MainPage = () => {
                                     variant="filled"
                                     color="success"
                                     focused
-                                    value={`${envUtils.apiPath}/calendar/group/${group}.ical`}
+                                    value={`${envUtils.icalUrl}/group/${group}.ical`}
                                     onClick={(e) => {
-                                        (e.target as any).select();
+                                        (e.target as HTMLInputElement)?.select?.();
                                     }}
                                 />
                             </Grid>
@@ -147,7 +147,7 @@ const MainPage = () => {
 
                     <Grid container spacing={2} sx={{ mt: 2 }}>
                         <Grid item xs={12} md={12}>
-                            <TeacherSelectComponent /* allowMultipleTeachersRef={allowMultipleTeachersRef} */ />
+                            <TeacherSelectComponent /* allowMultipleRef={allowMultipleRef} */ />
                         </Grid>
 
                         {selectedTeachers.map((teacherId) => (
@@ -163,9 +163,9 @@ const MainPage = () => {
                                     variant="filled"
                                     color="secondary"
                                     focused
-                                    value={`${envUtils.apiPath}/calendar/teacher/${teacherId}.ical`}
+                                    value={`${envUtils.icalUrl}/teacher/${teacherId}.ical`}
                                     onClick={(e) => {
-                                        (e.target as any).select();
+                                        (e.target as HTMLInputElement)?.select?.();
                                     }}
                                 />
                             </Grid>

@@ -1,6 +1,6 @@
 import React from 'react';
 import { useHash, useNetworkState } from 'react-use';
-import { useDispatch, useSelector } from 'react-redux';
+import { useDispatch } from 'react-redux';
 import { useIntl } from 'react-intl';
 import store2 from 'store2';
 
@@ -9,9 +9,9 @@ import TextField from '@mui/material/TextField';
 import Popper, { PopperProps } from '@mui/material/Popper';
 import { styled } from '@mui/material/styles';
 
-import scheduleSlice, { getLastTeachers, STORE_TEACHER_NAME_KEY } from '../store/reducer/schedule/schedule.slice';
 import * as envUtils from '../utils/env.utils';
-import { RootState } from '../store';
+import { useSelector } from '../store';
+import scheduleSlice, { getLastTeachers, STORE_TEACHER_NAME_KEY } from '../store/reducer/schedule/schedule.slice';
 
 interface ITeacherData {
     name: string;
@@ -30,13 +30,13 @@ const StyledPopper = styled(Popper)({
 
 const MyPopper = (props: PopperProps) => <StyledPopper {...props} style={{ width: 350 }} />;
 
-const TeacherSelect = (props: { allowMultipleTeachersRef?: React.MutableRefObject<(state?: any) => void> }) => {
-    const { allowMultipleTeachersRef } = props;
+const TeacherSelect = (props: { allowMultipleRef?: React.MutableRefObject<(state?: any) => void> }) => {
+    const { allowMultipleRef } = props;
     const dispatch = useDispatch();
-    const { selectedTeachers: selected, allowedMultipleTeachers: allowedMultiple } = useSelector<
-        RootState,
-        RootState['schedule']
-    >((state) => state.schedule);
+
+    const allowedMultiple = useSelector((state) => state.schedule.allowedMultipleTeachers);
+    const selected = useSelector((state) => state.schedule.selectedTeachers);
+
     const { online, previous: previousOnline, since } = useNetworkState();
 
     const { formatMessage } = useIntl();
@@ -48,11 +48,11 @@ const TeacherSelect = (props: { allowMultipleTeachersRef?: React.MutableRefObjec
     const [hash, setHash] = useHash();
     const defaultValues: number[] = React.useMemo(() => {
         const teacherIds = getLastTeachers();
-        let values = ((e) =>
-            e
-                ?.split(',')
-                .map<number>((e) => Number(e))
-                .filter((e) => e > 0) || [])(decodeURI(hash.slice(1)));
+        const defaultHash = decodeURI(hash.slice(1));
+        let values = defaultHash
+            .split(',')
+            .map(Number)
+            .filter((e) => e > 0);
         values = values.length > 0 ? values : teacherIds;
         // store2.set(STORE_TEACHER_NAME_KEY, values[0]);
         return values;
@@ -84,42 +84,80 @@ const TeacherSelect = (props: { allowMultipleTeachersRef?: React.MutableRefObjec
 
         setFetching(true);
 
-        fetch(`${envUtils.apiPath}/ystu/schedule/teachers`)
-            .then((response) => response.json())
+        const abortController = new AbortController();
+        const signal = abortController.signal;
+        fetch(`${envUtils.apiPath}/v1/schedule/actual_teachers`, { signal })
             .then(
-                (
-                    response: { items: { name: string; id: number }[] } | { error: { error: string; message: string } },
-                ) => {
-                    if ('error' in response) {
-                        alert(response.error.message);
-                        console.error(response.error);
-                        // dispatch(
-                        //     alertSlice.actions.add({
-                        //         message: `Error: ${response.error.message}`,
-                        //         severity: 'warning',
-                        //     })
-                        // );
+                async (response) =>
+                    [
+                        response,
+                        (await response.json()) as
+                            | {
+                                  items: ITeacherData[];
+                                  isCache: boolean;
+                              }
+                            | { error: { error: string; message: string } },
+                    ] as const,
+            )
+            .then(([res, response]) => {
+                if ('error' in response) {
+                    const retryAfter = res.headers.get('retry-after');
+                    if (Number(retryAfter) > 0) {
+                        alert(
+                            formatMessage({ id: 'text.error.title' }) +
+                                ' ' +
+                                formatMessage({ id: 'text.error.on.load-teachers' }) +
+                                '\n' +
+                                formatMessage({ id: 'text.error.message' }, { message: response.error.message }),
+                        );
                         return;
                     }
-                    applyTeachers(response!.items);
-                },
-            )
-            .catch((e) => {
-                applyTeachers(null);
-                if (online) {
-                    alert(e.message);
-                    console.error(e.message);
+
+                    alert(
+                        formatMessage({ id: 'text.error.title' }) +
+                            ' ' +
+                            formatMessage({ id: 'text.error.on.load-teachers' }) +
+                            '\n' +
+                            formatMessage({ id: 'text.error.message' }, { message: response.error.message }),
+                    );
+                    console.error(response.error);
                     // dispatch(
                     //     alertSlice.actions.add({
-                    //         message: `Error: ${e.message}`,
+                    //         message: `Error: ${response.error.message}`,
+                    //         severity: 'warning',
+                    //     }),
+                    // );
+                    return;
+                }
+                applyTeachers(response!.items);
+            })
+            .catch((err) => {
+                if (err.name === 'AbortError') {
+                    return;
+                }
+                applyTeachers(null);
+                if (online) {
+                    alert(
+                        formatMessage({ id: 'text.error.title' }) +
+                            ' ' +
+                            formatMessage({ id: 'text.error.on.load-teachers' }) +
+                            '\n' +
+                            formatMessage({ id: 'text.error.message' }, { message: err.message }),
+                    );
+                    console.error(err.message);
+                    // dispatch(
+                    //     alertSlice.actions.add({
+                    //         message: `Error: ${err.message}`,
                     //         severity: 'error',
-                    //     })
+                    //     }),
                     // );
                 }
             })
             .finally(() => {
                 setFetching(false);
             });
+
+        return abortController;
     }, [fetching, setFetching, applyTeachers, online]);
 
     const onChangeValues = React.useCallback(
@@ -128,10 +166,15 @@ const TeacherSelect = (props: { allowMultipleTeachersRef?: React.MutableRefObjec
             let values: number[] = value;
             const maxCount = 4 - 1;
             values = values.length > maxCount ? [values[0], ...values.slice(-maxCount)] : values;
+            values = values.filter((w, i) => values.indexOf(w) === i);
 
             if (values.length !== selected.length || values.some((e, i) => selected[i] !== e)) {
                 dispatch(scheduleSlice.actions.setSelectedTeachers(values));
-                setHash(values.map((e) => e /* .id */).join(','));
+
+                const defaultHash = decodeURI(hash.slice(1));
+                // Сохраняем другие значения, не названия групп
+                let otherHashValues = defaultHash.split(',').filter((e) => isNaN(+e) && e.length > 0);
+                setHash([...otherHashValues.filter((w, i) => otherHashValues.indexOf(w) === i), ...values].join(','));
                 if (values.length > 0) {
                     store2.set(STORE_TEACHER_NAME_KEY, values);
                 }
@@ -186,19 +229,24 @@ const TeacherSelect = (props: { allowMultipleTeachersRef?: React.MutableRefObjec
     }, [defaultValues]);
 
     React.useEffect(() => {
-        if (previousOnline && (online !== previousOnline || (since && Date.now() - since.getTime() > 2 * 60e3))) {
-            loadTeachersList();
+        if (online !== previousOnline || (since && Date.now() - since.getTime() > 2 * 60e3)) {
+            const abortController = loadTeachersList();
+            return () => {
+                abortController && abortController.abort();
+            };
         }
     }, [online, previousOnline, since]);
 
     React.useEffect(() => {
-        loadTeachersList();
+        if (allowMultipleRef) allowMultipleRef.current = allowMultiple;
+    }, [allowMultiple]);
+
+    React.useEffect(() => {
         fixSelected(defaultValues);
 
         if (window.location.search.includes('allow_multiple')) {
             allowMultiple();
         }
-        allowMultipleTeachersRef && (allowMultipleTeachersRef.current = allowMultiple);
     }, []);
 
     const isMultiple = allowedMultiple || selected.length > 1;

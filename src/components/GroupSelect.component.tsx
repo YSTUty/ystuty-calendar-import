@@ -1,6 +1,6 @@
 import React from 'react';
 import { useHash, useNetworkState } from 'react-use';
-import { useDispatch, useSelector } from 'react-redux';
+import { useDispatch } from 'react-redux';
 import { useIntl } from 'react-intl';
 import store2 from 'store2';
 
@@ -9,11 +9,28 @@ import TextField from '@mui/material/TextField';
 import Popper, { PopperProps } from '@mui/material/Popper';
 import { styled } from '@mui/material/styles';
 
-import scheduleSlice, { getLastGroups, STORE_GROUP_NAME_KEY } from '../store/reducer/schedule/schedule.slice';
 import * as envUtils from '../utils/env.utils';
-import { RootState } from '../store';
+import { useSelector } from '../store';
+import scheduleSlice, { getLastGroups, STORE_GROUP_NAME_KEY } from '../store/reducer/schedule/schedule.slice';
 
-const STORE_CACHED_INSTITUTES_KEY = 'CACHED_INSTITUTES';
+/**
+ * Название института и массив групп
+ */
+export interface IInstituteGroupsData {
+    /**
+     * Название института
+     * @example Институт цифровых систем
+     */
+    name: string;
+
+    /**
+     * Название групп (`string`) или детальная информация (`object`) о группах при `additional=true`
+     */
+    groups: /* GroupDetailDto | */ string[];
+}
+
+// const STORE_CACHED_INSTITUTES_KEY_OLD = 'CACHED_INSTITUTES';
+const STORE_CACHED_INSTITUTES_KEY = 'CACHED_V3_INSTITUTES::';
 
 const StyledPopper = styled(Popper)({
     [`& .${autocompleteClasses.listbox}`]: {
@@ -24,13 +41,11 @@ const StyledPopper = styled(Popper)({
 
 const MyPopper = (props: PopperProps) => <StyledPopper {...props} style={{ width: 350 }} />;
 
-const GroupSelect = (props: { allowMultipleGroupsRef?: React.MutableRefObject<(state?: any) => void> }) => {
-    const { allowMultipleGroupsRef } = props;
+export const SelectGroupComponent = (props: { allowMultipleRef?: React.MutableRefObject<(state?: any) => void> }) => {
+    const { allowMultipleRef } = props;
     const dispatch = useDispatch();
-    const { selectedGroups: selected, allowedMultipleGroups: allowedMultiple } = useSelector<
-        RootState,
-        RootState['schedule']
-    >((state) => state.schedule);
+    const allowedMultiple = useSelector((state) => state.schedule.allowedMultipleGroups);
+    const selected = useSelector((state) => state.schedule.selectedGroups);
 
     const { formatMessage } = useIntl();
     const { online, previous: previousOnline, since } = useNetworkState();
@@ -38,18 +53,16 @@ const GroupSelect = (props: { allowMultipleGroupsRef?: React.MutableRefObject<(s
     const defaultValues = React.useMemo(() => {
         const groupNames = getLastGroups();
         const defaultHash = decodeURI(hash.slice(1));
-        let values = defaultHash.split(',');
-        values = values.length > 0 ? values.filter((e) => isNaN(Number(e))) : groupNames;
-        // store2.set(STORE_GROUP_NAME_KEY, values[0]);
+        let values = defaultHash.split(',').filter((e) => e.length > 0 && e.includes('-'));
+        values = values.length > 0 ? values : groupNames;
         return values;
     }, [hash]);
-
     const [institutes, setInstitutes] = React.useState<{ name: string; groups: string[] }[]>([]);
     const [fetching, setFetching] = React.useState(false);
     const [isCached, setIsCached] = React.useState(false);
 
     const applyInstitutes = React.useCallback(
-        (items: { name: string; groups: string[] }[] | null) => {
+        (items: IInstituteGroupsData[] | null) => {
             if (!items) {
                 items = store2.get(STORE_CACHED_INSTITUTES_KEY, null);
                 if (!items) {
@@ -74,45 +87,82 @@ const GroupSelect = (props: { allowMultipleGroupsRef?: React.MutableRefObject<(s
 
         setFetching(true);
 
-        fetch(`${envUtils.apiPath}/ystu/schedule/institutes?extramural=true`)
-            .then((response) => response.json())
+        const abortController = new AbortController();
+        const signal = abortController.signal;
+        fetch(`${envUtils.apiPath}/v1/schedule/actual_groups`, { signal })
             .then(
-                (
-                    response:
-                        | { items: { name: string; groups: string[] }[] }
-                        | { error: { error: string; message: string } },
-                ) => {
-                    if ('error' in response) {
-                        alert(response.error.message);
-                        console.error(response.error);
-
-                        // dispatch(
-                        //     alertSlice.actions.add({
-                        //         message: `Error: ${response.error.message}`,
-                        //         severity: 'warning',
-                        //     })
-                        // );
+                async (response) =>
+                    [
+                        response,
+                        (await response.json()) as
+                            | {
+                                  name: string;
+                                  items: IInstituteGroupsData[];
+                                  isCache: boolean;
+                              }
+                            | { error: { error: string; message: string } },
+                    ] as const,
+            )
+            .then(([res, response]) => {
+                if ('error' in response) {
+                    const retryAfter = res.headers.get('retry-after');
+                    if (Number(retryAfter) > 0) {
+                        alert(
+                            formatMessage({ id: 'text.error.title' }) +
+                                ' ' +
+                                formatMessage({ id: 'text.error.on.load-groups' }) +
+                                '\n' +
+                                formatMessage({ id: 'text.error.message' }, { message: response.error.message }),
+                        );
                         return;
                     }
-                    applyInstitutes(response!.items);
-                },
-            )
-            .catch((e) => {
-                applyInstitutes(null);
-                if (online) {
-                    alert(e.message);
-                    console.error(e.message);
+
+                    alert(
+                        formatMessage({ id: 'text.error.title' }) +
+                            ' ' +
+                            formatMessage({ id: 'text.error.on.load-groups' }) +
+                            '\n' +
+                            formatMessage({ id: 'text.error.message' }, { message: response.error.message }),
+                    );
+                    console.error(response.error);
+
                     // dispatch(
                     //     alertSlice.actions.add({
-                    //         message: `Error: ${e.message}`,
+                    //         message: `Error: ${response.error.message}`,
+                    //         severity: 'warning',
+                    //     }),
+                    // );
+                    return;
+                }
+                applyInstitutes(response!.items);
+            })
+            .catch((err) => {
+                if (err.name === 'AbortError') {
+                    return;
+                }
+                applyInstitutes(null);
+                if (online) {
+                    alert(
+                        formatMessage({ id: 'text.error.title' }) +
+                            ' ' +
+                            formatMessage({ id: 'text.error.on.load-groups' }) +
+                            '\n' +
+                            formatMessage({ id: 'text.error.message' }, { message: err.message }),
+                    );
+                    console.error(err.message);
+                    // dispatch(
+                    //     alertSlice.actions.add({
+                    //         message: `Error: ${err.message}`,
                     //         severity: 'error',
-                    //     })
+                    //     }),
                     // );
                 }
             })
             .finally(() => {
                 setFetching(false);
             });
+
+        return abortController;
     }, [fetching, setFetching, applyInstitutes, online]);
 
     const onChangeValues = React.useCallback(
@@ -122,16 +172,29 @@ const GroupSelect = (props: { allowMultipleGroupsRef?: React.MutableRefObject<(s
             let values: string[] = value;
             const maxGroups = 10 - 1;
             values = values.length > maxGroups ? [values[0], ...values.slice(-maxGroups)] : values;
+            values = values.filter((w, i) => values.indexOf(w) === i);
 
-            if (values.some((e, i) => selected[i] !== e) || values.length !== selected.length) {
+            if (values.length !== selected.length || values.some((e, i) => selected[i] !== e)) {
                 dispatch(scheduleSlice.actions.setSelectedGroups(values));
-                setHash(values.join(','));
+
+                const lowerGroups = institutes.flatMap((e) => e.groups.map((e) => e.toLowerCase()));
+                const defaultHash = decodeURI(hash.slice(1));
+                // Сохраняем другие значения, не названия групп
+                let otherHashValues = defaultHash
+                    .split(',')
+                    .filter(
+                        (e) =>
+                            e.length > 0 &&
+                            !lowerGroups.some((v) => v.toLowerCase() === e.toLowerCase()) /* && !e.includes('-') */,
+                    );
+
+                setHash([...values, ...otherHashValues.filter((w, i) => otherHashValues.indexOf(w) === i)].join(','));
                 if (values.length > 0) {
                     store2.set(STORE_GROUP_NAME_KEY, values);
                 }
             }
         },
-        [dispatch, setHash, selected],
+        [dispatch, hash, setHash, selected],
     );
 
     const fixSelected = React.useCallback(
@@ -147,7 +210,7 @@ const GroupSelect = (props: { allowMultipleGroupsRef?: React.MutableRefObject<(s
                     .map((e) => groups[e]);
                 value = value.filter((w, i) => value.indexOf(w) === i);
             }
-            if (value.length > 1) {
+            if (value.length > 1 /* 0 */) {
                 onChangeValues(value);
             }
         },
@@ -185,19 +248,24 @@ const GroupSelect = (props: { allowMultipleGroupsRef?: React.MutableRefObject<(s
     }, [defaultValues]);
 
     React.useEffect(() => {
-        if (previousOnline && (online !== previousOnline || (since && Date.now() - since.getTime() > 2 * 60e3))) {
-            loadGroupsList();
+        if (online !== previousOnline || (since && Date.now() - since.getTime() > 2 * 60e3)) {
+            const abortController = loadGroupsList();
+            return () => {
+                abortController && abortController.abort();
+            };
         }
     }, [online, previousOnline, since]);
 
     React.useEffect(() => {
-        loadGroupsList();
+        if (allowMultipleRef) allowMultipleRef.current = allowMultiple;
+    }, [allowMultiple]);
+
+    React.useEffect(() => {
         fixSelected(defaultValues);
 
         if (window.location.search.includes('allow_multiple')) {
             allowMultiple();
         }
-        allowMultipleGroupsRef && (allowMultipleGroupsRef.current = allowMultiple);
     }, []);
 
     const isMultiple = allowedMultiple || selected.length > 1;
@@ -210,6 +278,8 @@ const GroupSelect = (props: { allowMultipleGroupsRef?: React.MutableRefObject<(s
             ),
         [institutes],
     );
+
+    const value = isMultiple ? (institutes.length > 0 ? selected : []) : institutes.length > 0 ? selected[0] : '';
 
     return (
         <Autocomplete
@@ -231,7 +301,7 @@ const GroupSelect = (props: { allowMultipleGroupsRef?: React.MutableRefObject<(s
                 />
             )}
             PopperComponent={MyPopper}
-            value={!isMultiple && Array.isArray(selected) ? selected[0] : selected}
+            value={value}
             onChange={(event, newValue, reason) => {
                 if (
                     event.type === 'keydown' &&
@@ -246,4 +316,3 @@ const GroupSelect = (props: { allowMultipleGroupsRef?: React.MutableRefObject<(s
         />
     );
 };
-export default GroupSelect;
