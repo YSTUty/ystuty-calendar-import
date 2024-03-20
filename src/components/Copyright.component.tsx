@@ -21,6 +21,7 @@ const Copyright = () => {
                 'YSTUty'
             )}
             {'.'}
+            <br />
             {envUtils.linkToGitHub && (
                 <Link href={envUtils.linkToGitHub} target="_blank" color="inherit" sx={{ ml: 1 }}>
                     <GitHubIcon fontSize="small" />
